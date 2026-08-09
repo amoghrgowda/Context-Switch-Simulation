@@ -1,3 +1,4 @@
+// (I like to heavily document and over-explain my code for convenience)
 // Simulated CPU 64-bit register set in the order:
 // Instruction pointer, stack pointer, Gen purp Rgst A & B, CPU flags.
 struct Registers{
@@ -30,3 +31,43 @@ struct IDTEntry{
 };
 
 constexpr size_t KERNEL_STACK_SIZE = 16384;
+
+struct KernelStack{
+    uint8_t memory[KERNEL_STACK_SIZE];
+    
+    uint64_t get_top_address() const{
+        // We return in 64 bits so that it can be loaded directly onto the CPU register
+        return reinterpret_cast<uint64_t>(&memory[KERNEL_STACK_SIZE]); 
+        // The above memory seem to be accessing array out-of-bounds memory but it is intentional.
+        // CPU performs pre-decrement push (decrements first and then pushes data in).
+    }
+};
+
+struct PCB{
+    int pid;
+    std::string name;
+    KernelStack kstack; // private kernel stack for each process.
+    uint64_t saved_kernel_sp; // saves the stack pointer of the kernel stack before pausing.
+};
+
+// Creating our CPU and OS structure here
+Registers cpu;
+IDTEntry idt[256]; // each IDT entry has its own vector ID and points to a unique handler
+PCB* current_process = nullptr;
+
+//Memory push/pop helper functions (Similar to pushq and popq instructions)
+template <typename T>
+void push_onto_stack(uint64_t& rsp, const T& value) {
+    rsp -= sizeof(T); // I think the value in x86-64 systems is decremented at a fixed value of 8 bytes
+                     // I don't want to make it too complicated (especially the error handling part) so I will use C++ templates here
+    T* stack_location = reinterpret_cast<T*>(rsp);
+    *stack_location = value;
+}
+
+template <typename T>
+T pop_from_stack(uint64_t& rsp){
+  T* stack_location = reinterpret_cast<T*>(rsp);
+  rsp += sizeof(T);
+  return *stack_location;  
+}
+// end of helper functions
