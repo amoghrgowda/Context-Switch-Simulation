@@ -23,4 +23,4 @@ struct PCB{
     uint64_t saved_kernel_sp; // saves the stack pointer of the kernel stack before pausing.
 };
 
-extern PCB* current_process;
+inline PCB* current_process = nullptr;

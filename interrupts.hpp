@@ -7,7 +7,7 @@ struct IDTEntry{
     void (*handler_address)();
 };
 
-extern IDTEntry idt[256]; // each IDT entry has its own vector ID and points to a unique handler
+inline IDTEntry idt[256]; // each IDT entry has its own vector ID and points to a unique handler
 
 void sys_call_trap_handler();
 void timer_interrupt_handler();

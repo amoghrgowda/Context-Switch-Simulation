@@ -47,3 +47,4 @@ T pop_from_stack(uint64_t& rsp){
   return *stack_location;  
 }
 // end of helper functions
+extern void trigger_cpu_vector(uint8_t vector_id);
