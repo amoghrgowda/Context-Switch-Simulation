@@ -12,9 +12,12 @@ struct Registers{
     uint64_t rflags {0x200}; // enable hardware interrupt by setting Interrupt Flag (IF) to 1
 };
 
+//creating our CPU here
+inline Registers cpu;
+
 // Simulated hardware stack frame - 
-// CPU microcode stores these into RAM (the stack)
-// before changing initial state upon interrupt/trap
+// CPU microcode stores the exact state of CPU into RAM (the kernel stack), particularly, inside this frame.
+// This occurs the moment an interrupt fires and before the initial CPU state changes.
 struct HardwareTrapFrame{
     uint64_t saved_rip {};
     uint64_t saved_rflags {};
